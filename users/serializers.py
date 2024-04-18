@@ -20,3 +20,4 @@ class UserSerializer(serializers.Serializer):
         else:
             users = User.objects.create_superuser(**validated_data)
         return users
+    
