@@ -10,7 +10,7 @@ class UserSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=50)
     last_name = serializers.CharField(max_length=50)
     password = serializers.CharField(max_length=128, write_only=True)
-    birthdate = serializers.DateTimeField(allow_null=True, default=None)
+    birthdate = serializers.DateField(allow_null=True, default=None)
     is_employee = serializers.BooleanField(default=False)
     is_superuser = serializers.BooleanField(read_only=True, default=False)
 
@@ -21,3 +21,12 @@ class UserSerializer(serializers.Serializer):
             users = User.objects.create_superuser(**validated_data)
         return users
     
+    def update(self, instance: User, validated_data: dict):
+        for k, v in validated_data.items():
+            if k == "password":
+                instance.set_password(v)
+            else:
+                setattr(instance, k, v)
+        instance.save()
+        return instance
+

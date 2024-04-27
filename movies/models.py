@@ -17,3 +17,6 @@ class Movie(models.Model):
     user = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="movies", null=True
     )
+    movie_by = models.ManyToManyField(
+        "users.User", through="movies_orders.MovieOrder", related_name="movie_orders"
+    )

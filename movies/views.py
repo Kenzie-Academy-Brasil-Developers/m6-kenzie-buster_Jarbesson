@@ -8,12 +8,12 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from users.permissions import IsAdiminOrReadeOlnly
 from django.shortcuts import get_object_or_404
-from django.forms.models import model_to_dict
+from rest_framework.pagination import PageNumberPagination
 
 
-class MovieView(APIView):
+class MovieView(APIView, PageNumberPagination):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdiminOrReadeOlnly]
 
     def post(self, request: Request):
         serializer = MoviesSerializer(data=request.data)
@@ -23,8 +23,9 @@ class MovieView(APIView):
     
     def get(self, request: Request):
         movies = Movie.objects.all()
-        serializer = MoviesSerializer(movies, many=True)
-        return Response(serializer.data, status.HTTP_200_OK)
+        query_result = self.paginate_queryset(movies, request, view=self)
+        serializer = MoviesSerializer(query_result, many=True)
+        return self.get_paginated_response(serializer.data)
     
 
 class MovieDetailView(APIView):
@@ -33,9 +34,8 @@ class MovieDetailView(APIView):
 
     def get(self, request: Request, movie_id: int):
         movie = get_object_or_404(Movie, pk=movie_id)
-        print("kjjfkdjfkdjfjdfjkdjfkdjfkdjkfkdjfkjdfjdjfk", model_to_dict(movie))
         serializer = MoviesSerializer(movie)
-
+    
         return Response(serializer.data, status.HTTP_200_OK)
     
     def delete(self, request: Request, movie_id: int):
