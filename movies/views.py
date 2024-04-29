@@ -4,16 +4,17 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 from movies.models import Movie  
 from movies.serializer import MoviesSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+# from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from users.permissions import IsAdiminOrReadeOlnly
+# from users.permissions import IsAdiminOrReadeOlnly
+from movies.permissions import IsBookOwner
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 
 
 class MovieView(APIView, PageNumberPagination):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAdiminOrReadeOlnly]
+    permission_classes = [IsBookOwner]
 
     def post(self, request: Request):
         serializer = MoviesSerializer(data=request.data)
@@ -30,7 +31,7 @@ class MovieView(APIView, PageNumberPagination):
 
 class MovieDetailView(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdiminOrReadeOlnly]
+    permission_classes = [IsBookOwner]
 
     def get(self, request: Request, movie_id: int):
         movie = get_object_or_404(Movie, pk=movie_id)
